@@ -54,7 +54,7 @@ if __name__ == "__main__":
     parser.add_argument('--learning_rate', type=float, default=1e-4, help='Learning rate for optimizer')
     parser.add_argument('--num_classes', type=int, default=34, help='Number of classes for segmentation')
     parser.add_argument('--num_epochs', type=int, default=5, help='Number of epochs to train')
-    parser.add_argument('--device', type=str, default='cuda', help='Device to use for training (cpu/cuda)')
+    parser.add_argument('--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu', help='Device to use for training (cpu/cuda/mps)')
     parser.add_argument('--model_output_dir', type=str, default=model_output_dir_path, help='Directory to save the trained model')
     args = parser.parse_args()
 
@@ -76,7 +76,6 @@ if __name__ == "__main__":
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-
 
     model = SegNet(in_channels=3, num_classes=num_classes).to(device)
     criterion = torch.nn.CrossEntropyLoss(ignore_index=255)  # Ignore index 255 for void class
@@ -110,7 +109,9 @@ if __name__ == "__main__":
 
         print(f"Epoch {epoch+1}/{num_epochs} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
 
-    # Save the model    
+    # Save the model 
+    if not os.path.exists(model_output_dir):
+        os.makedirs(model_output_dir)
     torch.save(model.state_dict(), os.path.join(model_output_dir, f'segnet_{num_epochs}_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pth'))
     print("Model saved as segnet_model.pth")
     tensorboard_writer.close()
