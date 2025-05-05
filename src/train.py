@@ -1,4 +1,4 @@
-from segnet_model import SegNet
+from segnet_model import SegNet, load_vgg16_bn_weights
 from dataset import SegmentationDataset 
 import torch
 import torchvision.transforms as transforms
@@ -78,6 +78,7 @@ if __name__ == "__main__":
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     model = SegNet(in_channels=3, num_classes=num_classes).to(device)
+    load_vgg16_bn_weights(model)  # Load VGG16-BN weights
     criterion = torch.nn.CrossEntropyLoss(ignore_index=255)  # Ignore index 255 for void class
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
