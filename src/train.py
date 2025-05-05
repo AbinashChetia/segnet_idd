@@ -82,11 +82,11 @@ if __name__ == "__main__":
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # TensorBoard setup
-    tensorboard_writer = tb.SummaryWriter(log_dir='runs/segnet_training')
-    tensorboard_writer.add_graph(model, next(iter(train_loader))[0].to(device))
-    tensorboard_writer.add_text('Hyperparameters', f'Batch Size: {batch_size}, Learning Rate: {learning_rate}, Epochs: {num_epochs}')
-    tensorboard_writer.add_text('Model Summary', str(model))
-    tensorboard_writer.add_text('Dataset Summary', f'Train Size: {len(train_dataset)}, Val Size: {len(val_dataset)}')
+    tb_writer = tb.SummaryWriter(log_dir='runs/segnet_training')
+    tb_writer.add_graph(model, next(iter(train_loader))[0].to(device))
+    tb_writer.add_text('Hyperparameters', f'Batch Size: {batch_size}, Learning Rate: {learning_rate}, Epochs: {num_epochs}')
+    tb_writer.add_text('Model Summary', str(model))
+    tb_writer.add_text('Dataset Summary', f'Train Size: {len(train_dataset)}, Val Size: {len(val_dataset)}')
     
     for epoch in range(num_epochs):
         train_loss = train_one_epoch(
@@ -104,15 +104,21 @@ if __name__ == "__main__":
             device=device
         )
 
-        tensorboard_writer.add_scalar('Loss/Train', train_loss, epoch)
-        tensorboard_writer.add_scalar('Loss/Validation', val_loss, epoch)
+        tb_writer.add_scalars(
+            'Loss',
+            {
+                'Train': train_loss,
+                'Validation': val_loss
+            },
+            epoch
+        )
 
-        print(f"Epoch {epoch+1}/{num_epochs} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
+        print(f"Epoch {epoch+1:3d}/{num_epochs:3d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
 
     # Save the model 
     if not os.path.exists(model_output_dir):
         os.makedirs(model_output_dir)
     torch.save(model.state_dict(), os.path.join(model_output_dir, f'segnet_{num_epochs}_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pth'))
     print("Model saved as segnet_model.pth")
-    tensorboard_writer.close()
+    tb_writer.close()
     print("Training complete. TensorBoard logs saved.")
