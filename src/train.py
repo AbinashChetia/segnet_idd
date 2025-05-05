@@ -119,7 +119,8 @@ if __name__ == "__main__":
     # Save the model 
     if not os.path.exists(model_output_dir):
         os.makedirs(model_output_dir)
-    torch.save(model.state_dict(), os.path.join(model_output_dir, f'segnet_{num_epochs}_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pth'))
-    print("Model saved as segnet_model.pth")
+    model_name = f'segnet_{num_epochs}_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pth'
+    torch.save(model.state_dict(), os.path.join(model_output_dir, model_name))
+    print(f"Model saved as {model_name} in {model_output_dir}.")
     tb_writer.close()
     print("Training complete. TensorBoard logs saved.")
