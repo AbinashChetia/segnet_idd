@@ -1,3 +1,5 @@
+# not considering 'license plate' and 'rectification border' labels from the dataset
+
 LEVEL1 = {
     'road': 0,
     'parking': 1,
@@ -25,7 +27,7 @@ LEVEL1 = {
     'traffic sign': 23,
     'traffic light': 24,
     'pole': 25,
-    'pole group': 26,
+    'polegroup': 26,
     'obs-str-bar-fallback': 27,
     'building': 28,
     'bridge': 29,
@@ -33,7 +35,6 @@ LEVEL1 = {
     'vegetation': 31,
     'sky': 32,
     'fallback background': 33,
-    'unlabeled': 255,
     'out of roi': 255,
 }
 
@@ -64,7 +65,7 @@ LEVEL2 = {
     'traffic sign': 18,
     'traffic light': 19,
     'pole': 20,
-    'pole group': 20,
+    'polegroup': 20,
     'obs-str-bar-fallback': 21,
     'building': 22,
     'bridge': 23,
@@ -72,7 +73,6 @@ LEVEL2 = {
     'vegetation': 24,
     'sky': 25,
     'fallback background': 25,
-    'unlabeled': 255,
     'out of roi': 255,
 }
 
@@ -103,7 +103,7 @@ LEVEL3 = {
     'traffic sign': 11,
     'traffic light': 11,
     'pole': 12,
-    'pole group': 12,
+    'polegroup': 12,
     'obs-str-bar-fallback': 12,
     'building': 13,
     'bridge': 13,
@@ -111,7 +111,6 @@ LEVEL3 = {
     'vegetation': 14,
     'sky': 15,
     'fallback background': 15,
-    'unlabeled': 255,
     'out of roi': 255,
 }
 
@@ -142,7 +141,7 @@ LEVEL4 = {
     'traffic sign': 4,
     'traffic light': 4,
     'pole': 4,
-    'pole group': 4,
+    'polegroup': 4,
     'obs-str-bar-fallback': 4,
     'building': 5,
     'bridge': 5,
@@ -150,7 +149,6 @@ LEVEL4 = {
     'vegetation': 5,
     'sky': 6,
     'fallback background': 6,
-    'unlabeled': 255,
     'out of roi': 255,
 }
 
