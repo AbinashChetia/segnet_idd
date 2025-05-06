@@ -62,7 +62,6 @@ if __name__ == "__main__":
     parser.add_argument('--level', type=int, default=1, choices=[1, 2, 3, 4], help='Level of labels to use for segmentation')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size for training')
     parser.add_argument('--learning_rate', type=float, default=1e-4, help='Learning rate for optimizer')
-    parser.add_argument('--num_classes', type=int, default=34, help='Number of classes for segmentation')
     parser.add_argument('--num_epochs', type=int, default=5, help='Number of epochs to train')
     parser.add_argument('--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu', help='Device to use for training (cpu/cuda/mps)')
     parser.add_argument('--model_output_dir', type=str, default=model_output_dir_path, help='Directory to save the trained model')
@@ -71,11 +70,11 @@ if __name__ == "__main__":
     data_dir = args.data_dir
     batch_size = args.batch_size
     learning_rate = args.learning_rate
-    num_classes = args.num_classes
     num_epochs = args.num_epochs
     device = args.device
     model_output_dir = args.model_output_dir
     label_map = LABEL_MAP_DICT[args.level]
+    num_classes = len(set(label_map.values()))
 
     data_transforms = transforms.Compose([
         transforms.Resize((256, 256)),

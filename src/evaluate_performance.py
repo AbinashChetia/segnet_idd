@@ -69,16 +69,15 @@ if __name__ == "__main__":
     parser.add_argument('--level', type=int, default=1, choices=[1, 2, 3, 4], help='Level of labels to use for segmentation')
     parser.add_argument('--model_path', type=str, required=True, help='Path to the trained model')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size for evaluation')
-    parser.add_argument('--num_classes', type=int, default=NUM_CLASSES, help='Number of classes for segmentation')
     parser.add_argument('--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu', help='Device to use for evaluation (cpu/cuda/mps)')
     args = parser.parse_args()
 
     data_dir = args.data_dir
     model_path = args.model_path
     batch_size = args.batch_size
-    num_classes = args.num_classes
     device = args.device
     label_map = LABEL_MAP_DICT[args.level]
+    num_classes = len(set(label_map.values()))
 
     data_transforms = transforms.Compose([
         transforms.Resize((256, 256)),
