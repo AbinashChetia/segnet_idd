@@ -8,7 +8,7 @@ import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix
 
-IDD_prepared_path = '../data/idd20k_lite_prepared'
+IDD_prepared_path = '../data/idd_segmentation_prepared'
 
 NUM_CLASSES = 34
 IGNORE_INDEX = 255
