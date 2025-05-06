@@ -29,18 +29,11 @@ class SegmentationDataset(Dataset):
 
     def __getitem__(self, idx):
 
-        if self.mode == 'train' or self.mode == 'val':
-            img_path = os.path.join(self.data_dir, 'images', self.mode, self.images[idx])
-            label_path = os.path.join(self.data_dir, 'labels', self.mode, self.labels[idx])
+        img_path = os.path.join(self.data_dir, 'images', self.mode, self.images[idx])
+        label_path = os.path.join(self.data_dir, 'labels', self.mode, self.labels[idx])
 
-            if not os.path.exists(img_path) or not os.path.exists(label_path):
-                raise FileNotFoundError(f"Image or label file not found: {img_path} or {label_path}")
-        
-        else:
-            img_path = os.path.join(self.data_dir, 'images', self.mode, self.images[idx])
-            label_path = None
-            if not os.path.exists(img_path):
-                raise FileNotFoundError(f"Image file not found: {img_path}")
+        if not os.path.exists(img_path) or not os.path.exists(label_path):
+            raise FileNotFoundError(f"Image or label file not found: {img_path} or {label_path}")
         
         image = Image.open(img_path).convert('RGB')
         label = Image.open(label_path).convert('L') if label_path else None

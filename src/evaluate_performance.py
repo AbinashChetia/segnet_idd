@@ -7,6 +7,8 @@ import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix
 
+IDD_prepared_path = '../data/idd20k_lite_prepared'
+
 NUM_CLASSES = 34
 IGNORE_INDEX = 255
 
@@ -55,7 +57,7 @@ def evaluate_model(model, dataloader, device):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Evaluate SegNet for Semantic Segmentation")
-    parser.add_argument('--data_dir', type=str, required=True, help='Path to dataset directory')
+    parser.add_argument('--data_dir', type=str, default=IDD_prepared_path, help='Path to dataset directory')
     parser.add_argument('--model_path', type=str, required=True, help='Path to the trained model')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size for evaluation')
     parser.add_argument('--num_classes', type=int, default=NUM_CLASSES, help='Number of classes for segmentation')
