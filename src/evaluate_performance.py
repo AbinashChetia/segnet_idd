@@ -10,9 +10,6 @@ from sklearn.metrics import confusion_matrix
 
 IDD_prepared_path = '../data/idd_segmentation_prepared'
 
-NUM_CLASSES = 34
-IGNORE_INDEX = 255
-
 LABEL_MAP_DICT = {
     1: LEVEL1,
     2: LEVEL2,
@@ -20,22 +17,23 @@ LABEL_MAP_DICT = {
     4: LEVEL4
 }
 
-def compute_iou(conf_matrix):
-    ious = []
-    for cls in range(NUM_CLASSES):
+def compute_iou(conf_matrix, labels):
+    ious = {}
+    for cls in range(labels):
         tp = conf_matrix[cls, cls]
         fp = conf_matrix[:, cls].sum() - tp
         fn = conf_matrix[cls, :].sum() - tp
         denom = tp + fp + fn
         if denom == 0:
-            ious.append(float('nan')) 
+            ious[cls] = np.float('nan') 
         else:
-            ious.append(tp / denom)
+            ious[cls] = tp / denom
     return ious
 
-def evaluate_model(model, dataloader, device):
+def evaluate_model(model, dataloader, label_map, device):
     model.eval()
-    conf_matrix = np.zeros((NUM_CLASSES, NUM_CLASSES), dtype=np.int64)
+    num_classes = len(set(label_map.values()))
+    conf_matrix = np.zeros((num_classes, num_classes), dtype=np.int64)
 
     with torch.no_grad():
         for images, labels in tqdm(dataloader, desc="Evaluating", leave=False):
@@ -47,7 +45,7 @@ def evaluate_model(model, dataloader, device):
 
             # Loop over batch
             for pred, gt in zip(preds, labels):
-                mask = gt != IGNORE_INDEX  # Mask to ignore unlabeled regions
+                mask = gt != label_map['out of roi']  # Mask to ignore unlabeled regions
                 pred = pred[mask]
                 gt = gt[mask]
 
@@ -56,9 +54,9 @@ def evaluate_model(model, dataloader, device):
                 gt_np = gt.cpu().numpy().flatten()
 
                 # Update confusion matrix
-                conf_matrix += confusion_matrix(gt_np, pred_np, labels=list(range(NUM_CLASSES)))
+                conf_matrix += confusion_matrix(gt_np, pred_np, labels=list(set(label_map.values())))
 
-    ious = compute_iou(conf_matrix)
+    ious = compute_iou(conf_matrix, list(set(label_map.values())))
     miou = np.nanmean(ious)
     return ious, miou
 
@@ -90,9 +88,9 @@ if __name__ == "__main__":
     model = SegNet(in_channels=3, num_classes=num_classes).to(device)
     model.load_state_dict(torch.load(model_path)) 
 
-    ious, miou = evaluate_model(model, test_loader, device)
+    ious, miou = evaluate_model(model, test_loader, label_map, device)
     
     print(f"Mean IoU: {miou:2.4f}")
     print("Class-wise IoU:")
-    for cls in range(num_classes):
-        print(f"\t{cls:2d}: {ious[cls]:2.4f}")
+    for k, v in ious.items():
+        print(f"\t{k:2d}: {v:2.4f}")

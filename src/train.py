@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
     model = SegNet(in_channels=3, num_classes=num_classes).to(device)
     load_vgg16_bn_weights(model)  # Load VGG16-BN weights
-    criterion = torch.nn.CrossEntropyLoss(ignore_index=255)  # Ignore index 255 for void class
+    criterion = torch.nn.CrossEntropyLoss(ignore_index=label_map['out of roi'])
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Early stopping parameters

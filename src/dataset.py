@@ -60,7 +60,7 @@ def generate_mask_from_json(json_path, label_map):
     width = data["imgWidth"]
 
     mask = np.zeros((height, width), dtype=np.uint8)
-    mask.fill(255)
+    mask.fill(label_map['out of roi']) 
 
     for obj in data["objects"]:
         label = obj["label"]

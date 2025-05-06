@@ -35,7 +35,7 @@ LEVEL1 = {
     'vegetation': 31,
     'sky': 32,
     'fallback background': 33,
-    'out of roi': 255,
+    'out of roi': 34,
 }
 
 LEVEL2 = {
@@ -73,7 +73,7 @@ LEVEL2 = {
     'vegetation': 24,
     'sky': 25,
     'fallback background': 25,
-    'out of roi': 255,
+    'out of roi': 26,
 }
 
 LEVEL3 = {
@@ -111,7 +111,7 @@ LEVEL3 = {
     'vegetation': 14,
     'sky': 15,
     'fallback background': 15,
-    'out of roi': 255,
+    'out of roi': 16,
 }
 
 LEVEL4 = {
@@ -149,7 +149,7 @@ LEVEL4 = {
     'vegetation': 5,
     'sky': 6,
     'fallback background': 6,
-    'out of roi': 255,
+    'out of roi': 7,
 }
 
 LEVEL4_text = {
@@ -160,5 +160,5 @@ LEVEL4_text = {
     4: 'road-side objects',
     5: 'far objects',
     6: 'sky',
-    255: 'not for training',
+    7: 'not for training',
 }
