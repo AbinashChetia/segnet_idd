@@ -19,13 +19,13 @@ LABEL_MAP_DICT = {
 
 def compute_iou(conf_matrix, labels):
     ious = {}
-    for cls in range(labels):
+    for cls in labels:
         tp = conf_matrix[cls, cls]
         fp = conf_matrix[:, cls].sum() - tp
         fn = conf_matrix[cls, :].sum() - tp
         denom = tp + fp + fn
         if denom == 0:
-            ious[cls] = np.float('nan') 
+            ious[cls] = np.nan
         else:
             ious[cls] = tp / denom
     return ious
@@ -57,7 +57,7 @@ def evaluate_model(model, dataloader, label_map, device):
                 conf_matrix += confusion_matrix(gt_np, pred_np, labels=list(set(label_map.values())))
 
     ious = compute_iou(conf_matrix, list(set(label_map.values())))
-    miou = np.nanmean(ious)
+    miou = np.nanmean(list(ious.values()))
     return ious, miou
 
 if __name__ == "__main__":
