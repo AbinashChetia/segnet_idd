@@ -1,4 +1,3 @@
-# create dataset class for loading and processing data from data folder
 import os
 import torch
 from torch.utils.data import Dataset
@@ -23,6 +22,7 @@ class SegmentationDataset(Dataset):
 
         elif mode == 'test':
             self.images = sorted(os.listdir(os.path.join(data_dir, 'images/test')))
+            self.labels = sorted(os.listdir(os.path.join(data_dir, 'labels/test')))
 
     def __len__(self):
         return len(self.images)

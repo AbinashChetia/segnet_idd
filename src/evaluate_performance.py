@@ -73,13 +73,13 @@ if __name__ == "__main__":
         transforms.ToTensor(),
     ])
 
-    val_dataset = SegmentationDataset(data_dir=data_dir, transform=data_transforms, mode='val')
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    test_dataset = SegmentationDataset(data_dir=data_dir, transform=data_transforms, mode='test')
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     model = SegNet(in_channels=3, num_classes=num_classes).to(device)
     model.load_state_dict(torch.load(model_path)) 
 
-    ious, miou = evaluate_model(model, val_loader, device)
+    ious, miou = evaluate_model(model, test_loader, device)
     
     print(f"Mean IoU: {miou:2.4f}")
     print("Class-wise IoU:")
