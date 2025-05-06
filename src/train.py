@@ -63,6 +63,7 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size for training')
     parser.add_argument('--learning_rate', type=float, default=1e-4, help='Learning rate for optimizer')
     parser.add_argument('--num_epochs', type=int, default=5, help='Number of epochs to train')
+    parser.add_argument('--patience', type=int, default=3, help='Early stopping patience')
     parser.add_argument('--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu', help='Device to use for training (cpu/cuda/mps)')
     parser.add_argument('--model_output_dir', type=str, default=model_output_dir_path, help='Directory to save the trained model')
     args = parser.parse_args()
@@ -71,6 +72,7 @@ if __name__ == "__main__":
     batch_size = args.batch_size
     learning_rate = args.learning_rate
     num_epochs = args.num_epochs
+    patience = args.patience
     device = args.device
     model_output_dir = args.model_output_dir
     label_map = LABEL_MAP_DICT[args.level]
@@ -91,6 +93,10 @@ if __name__ == "__main__":
     load_vgg16_bn_weights(model)  # Load VGG16-BN weights
     criterion = torch.nn.CrossEntropyLoss(ignore_index=255)  # Ignore index 255 for void class
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+    # Early stopping parameters
+    best_val_loss = float('inf')
+    patience_counter = 0
 
     # TensorBoard setup
     tb_writer = tb.SummaryWriter(log_dir='runs/segnet_training')
@@ -126,11 +132,22 @@ if __name__ == "__main__":
 
         print(f"Epoch {epoch+1:3d}/{num_epochs:3d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
 
+        # Early stopping check
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            patience_counter = 0
+        else:
+            patience_counter += 1
+
+        if patience_counter >= patience:
+            print(f"Early stopping triggered after {epoch+1} epochs.")
+            break
+
     # Save the model 
     if not os.path.exists(model_output_dir):
         os.makedirs(model_output_dir)
     model_name = f'segnet_l{args.level}_e{num_epochs}_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pth'
     torch.save(model.state_dict(), os.path.join(model_output_dir, model_name))
-    print(f"Model saved as {model_name} in {model_output_dir}.")
+    print(f"Model saved as {model_output_dir}/{model_name}.")
     tb_writer.close()
     print("Training complete. TensorBoard logs saved.")
