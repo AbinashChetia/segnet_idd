@@ -148,6 +148,6 @@ if __name__ == "__main__":
         os.makedirs(model_output_dir)
     model_name = f'segnet_l{args.level}_ep{epoch+1}_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pth'
     torch.save(model.state_dict(), os.path.join(model_output_dir, model_name))
-    print(f"Model saved as {model_output_dir}/{model_name}.")
+    print(f"Model saved as {model_output_dir}{model_name}.")
     tb_writer.close()
     print("Training complete. TensorBoard logs saved.")
