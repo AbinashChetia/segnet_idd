@@ -101,7 +101,7 @@ if __name__ == "__main__":
     # TensorBoard setup
     tb_writer = tb.SummaryWriter(log_dir='runs/segnet_training')
     tb_writer.add_graph(model, next(iter(train_loader))[0].to(device))
-    tb_writer.add_text('Hyperparameters', f'Batch Size: {batch_size}, Learning Rate: {learning_rate}, Epochs: {num_epochs}')
+    tb_writer.add_text('Hyperparameters', f'Level: {args.level}, Batch Size: {batch_size}, Learning Rate: {learning_rate}, Epochs: {num_epochs}, Patience: {patience}')
     tb_writer.add_text('Model Summary', str(model))
     tb_writer.add_text('Dataset Summary', f'Train Size: {len(train_dataset)}, Val Size: {len(val_dataset)}')
     
