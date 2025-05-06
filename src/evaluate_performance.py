@@ -1,5 +1,4 @@
 from label_hierarchy import LEVEL1, LEVEL2, LEVEL3, LEVEL4
-import argparse
 from dataset import SegmentationDataset
 from segnet_model import SegNet
 import torch
@@ -7,6 +6,9 @@ from torchvision import transforms
 import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix
+import argparse
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 IDD_prepared_path = '../data/idd_segmentation_prepared'
 
@@ -58,7 +60,7 @@ def evaluate_model(model, dataloader, label_map, device):
 
     ious = compute_iou(conf_matrix, list(set(label_map.values())))
     miou = np.nanmean(list(ious.values()))
-    return ious, miou
+    return ious, miou, conf_matrix
 
 if __name__ == "__main__":
 
@@ -88,9 +90,16 @@ if __name__ == "__main__":
     model = SegNet(in_channels=3, num_classes=num_classes).to(device)
     model.load_state_dict(torch.load(model_path)) 
 
-    ious, miou = evaluate_model(model, test_loader, label_map, device)
+    ious, miou, conf_matrix = evaluate_model(model, test_loader, label_map, device)
     
     print(f"Mean IoU: {miou:2.4f}")
     print("Class-wise IoU:")
     for k, v in ious.items():
         print(f"\t{k:2d}: {v:2.4f}")
+
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=list(label_map.keys()), yticklabels=list(label_map.keys()))
+    plt.title('Confusion Matrix')
+    plt.xlabel('Predicted')
+    plt.ylabel('Ground Truth')
+    plt.show()
