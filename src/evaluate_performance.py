@@ -1,3 +1,4 @@
+from label_hierarchy import LEVEL1, LEVEL2, LEVEL3, LEVEL4
 import argparse
 from dataset import SegmentationDataset
 from segnet_model import SegNet
@@ -11,6 +12,13 @@ IDD_prepared_path = '../data/idd20k_lite_prepared'
 
 NUM_CLASSES = 34
 IGNORE_INDEX = 255
+
+LABEL_MAP_DICT = {
+    1: LEVEL1,
+    2: LEVEL2,
+    3: LEVEL3,
+    4: LEVEL4
+}
 
 def compute_iou(conf_matrix):
     ious = []
@@ -58,6 +66,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Evaluate SegNet for Semantic Segmentation")
     parser.add_argument('--data_dir', type=str, default=IDD_prepared_path, help='Path to dataset directory')
+    parser.add_argument('--level', type=int, default=1, choices=[1, 2, 3, 4], help='Level of labels to use for segmentation')
     parser.add_argument('--model_path', type=str, required=True, help='Path to the trained model')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size for evaluation')
     parser.add_argument('--num_classes', type=int, default=NUM_CLASSES, help='Number of classes for segmentation')
@@ -69,13 +78,14 @@ if __name__ == "__main__":
     batch_size = args.batch_size
     num_classes = args.num_classes
     device = args.device
+    label_map = LABEL_MAP_DICT[args.level]
 
     data_transforms = transforms.Compose([
         transforms.Resize((256, 256)),
         transforms.ToTensor(),
     ])
 
-    test_dataset = SegmentationDataset(data_dir=data_dir, transform=data_transforms, mode='test')
+    test_dataset = SegmentationDataset(data_dir=data_dir, transform=data_transforms, mode='test', label_map=label_map)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     model = SegNet(in_channels=3, num_classes=num_classes).to(device)

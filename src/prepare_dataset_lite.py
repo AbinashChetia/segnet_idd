@@ -2,13 +2,16 @@ import os
 import shutil
 from tqdm import tqdm
 
-OUTPUT_IMG_TRAIN_DIR = '../data/idd_segmentation_prepared/images/train'
-OUTPUT_IMG_VAL_DIR = '../data/idd_segmentation_prepared/images/val'
-OUTPUT_IMG_TEST_DIR = '../data/idd_segmentation_prepared/images/test'
-OUTPUT_GT_TRAIN_DIR = '../data/idd_segmentation_prepared/labels/train'
-OUTPUT_GT_VAL_DIR = '../data/idd_segmentation_prepared/labels/val'
+modes = ['seg', 'inst-seg']
+MODE = modes[0]
 
-dataset_root_path = '../data/IDD_Segmentation/'
+OUTPUT_IMG_TRAIN_DIR = '../data/idd20k_lite_prepared/images/train'
+OUTPUT_IMG_VAL_DIR = '../data/idd20k_lite_prepared/images/val'
+OUTPUT_IMG_TEST_DIR = '../data/idd20k_lite_prepared/images/test'
+OUTPUT_GT_TRAIN_DIR = '../data/idd20k_lite_prepared/labels/train'
+OUTPUT_GT_VAL_DIR = '../data/idd20k_lite_prepared/labels/val'
+
+dataset_root_path = '../data/idd20k_lite/'
 
 img_train_path = os.path.join(dataset_root_path, 'leftImg8bit/train')
 img_val_path = os.path.join(dataset_root_path, 'leftImg8bit/val')
@@ -23,11 +26,17 @@ def get_label_path(img_path):
     dir_name = path_components[-2]
     train_test_val = path_components[-3]
 
-    if train_test_val == 'train':
-        return f'{gt_train_path}/{dir_name}/{img_name}_gtFine_polygons.json'
+    if train_test_val == 'train' and MODE == 'seg':
+        return f'{gt_train_path}/{dir_name}/{img_name}_label.png'
 
-    elif train_test_val == 'val':
-        return f'{gt_val_path}/{dir_name}/{img_name}_gtFine_polygons.json'
+    elif train_test_val == 'train' and MODE == 'inst-seg':
+        return f'{gt_train_path}/{dir_name}/{img_name}_inst_label.png'
+
+    elif train_test_val == 'val' and MODE == 'seg':
+        return f'{gt_val_path}/{dir_name}/{img_name}_label.png'
+
+    elif train_test_val == 'val' and MODE == 'inst-seg':
+        return f'{gt_val_path}/{dir_name}/{img_name}_inst_label.png'
     
     else:
         raise ValueError(f"Invalid path: {img_path}.")

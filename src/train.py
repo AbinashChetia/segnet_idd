@@ -1,4 +1,6 @@
+from cProfile import label
 from segnet_model import SegNet, load_vgg16_bn_weights
+from label_hierarchy import LEVEL1, LEVEL2, LEVEL3, LEVEL4
 from dataset import SegmentationDataset 
 import torch
 import torchvision.transforms as transforms
@@ -9,8 +11,15 @@ import torch.utils.tensorboard as tb
 import datetime
 import os
 
-IDD_prepared_path = '../data/idd20k_lite_prepared'
+IDD_prepared_path = '../data/idd_segmentation_prepared'
 model_output_dir_path = '../trained_models/'
+
+LABEL_MAP_DICT = {
+    1: LEVEL1,
+    2: LEVEL2,
+    3: LEVEL3,
+    4: LEVEL4
+}
 
 def train_one_epoch(model, dataloader, optimizer, criterion, device):
     model.train()
@@ -50,6 +59,7 @@ def evaluate(model, dataloader, criterion, device):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train SegNet for Semantic Segmentation")
     parser.add_argument('--data_dir', type=str, default=IDD_prepared_path, help='Path to dataset directory')
+    parser.add_argument('--level', type=int, default=1, choices=[1, 2, 3, 4], help='Level of labels to use for segmentation')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size for training')
     parser.add_argument('--learning_rate', type=float, default=1e-4, help='Learning rate for optimizer')
     parser.add_argument('--num_classes', type=int, default=34, help='Number of classes for segmentation')
@@ -65,14 +75,15 @@ if __name__ == "__main__":
     num_epochs = args.num_epochs
     device = args.device
     model_output_dir = args.model_output_dir
+    label_map = LABEL_MAP_DICT[args.level]
 
     data_transforms = transforms.Compose([
         transforms.Resize((256, 256)),
         transforms.ToTensor(),
     ])
 
-    train_dataset = SegmentationDataset(data_dir=data_dir, transform=data_transforms, mode='train')
-    val_dataset = SegmentationDataset(IDD_prepared_path, transform=data_transforms, mode='val')
+    train_dataset = SegmentationDataset(data_dir=data_dir, transform=data_transforms, mode='train', label_map=label_map)
+    val_dataset = SegmentationDataset(IDD_prepared_path, transform=data_transforms, mode='val', label_map=label_map)
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
@@ -119,7 +130,7 @@ if __name__ == "__main__":
     # Save the model 
     if not os.path.exists(model_output_dir):
         os.makedirs(model_output_dir)
-    model_name = f'segnet_{num_epochs}_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pth'
+    model_name = f'segnet_l{args.level}_e{num_epochs}_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pth'
     torch.save(model.state_dict(), os.path.join(model_output_dir, model_name))
     print(f"Model saved as {model_name} in {model_output_dir}.")
     tb_writer.close()
