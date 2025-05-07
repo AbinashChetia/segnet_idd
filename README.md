@@ -1,1 +1,1 @@
-# Semantic Segmentation using IDD dataset
+# Semantic Segmentation using SegNet & IDD dataset
