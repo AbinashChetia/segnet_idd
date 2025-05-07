@@ -90,16 +90,9 @@ if __name__ == "__main__":
     model = SegNet(in_channels=3, num_classes=num_classes).to(device)
     model.load_state_dict(torch.load(model_path)) 
 
-    ious, miou, conf_matrix = evaluate_model(model, test_loader, label_map, device)
+    ious, miou, _ = evaluate_model(model, test_loader, label_map, device)
     
     print(f"Mean IoU: {miou:2.4f}")
     print("Class-wise IoU:")
     for k, v in ious.items():
         print(f"\t{k:2d}: {v:2.4f}")
-
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=list(label_map.keys()), yticklabels=list(label_map.keys()))
-    plt.title('Confusion Matrix')
-    plt.xlabel('Predicted')
-    plt.ylabel('Ground Truth')
-    plt.show()
