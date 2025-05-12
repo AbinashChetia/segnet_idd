@@ -1,5 +1,6 @@
 from segnet_model import SegNet, load_vgg16_bn_weights
-from dataset import SegmentationDatasetLite 
+from label_hierarchy import LEVEL1, LEVEL2, LEVEL3, LEVEL4
+from dataset import SegmentationDataset 
 import torch
 import torchvision.transforms as transforms
 import torch.optim as optim
@@ -9,9 +10,15 @@ import torch.utils.tensorboard as tb
 import datetime
 import os
 
-IDD_prepared_path = '../data/idd20k_lite_prepared'
-NUM_CLASSES = 7
+IDD_prepared_path = '../data/idd_segmentation_prepared'
 model_output_dir_path = '../trained_models/'
+
+LABEL_MAP_DICT = {
+    1: LEVEL1,
+    2: LEVEL2,
+    3: LEVEL3,
+    4: LEVEL4
+}
 
 def train_one_epoch(model, dataloader, optimizer, criterion, device):
     model.train()
@@ -51,6 +58,7 @@ def evaluate(model, dataloader, criterion, device):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train SegNet for Semantic Segmentation")
     parser.add_argument('--data_dir', type=str, default=IDD_prepared_path, help='Path to dataset directory')
+    parser.add_argument('--level', type=int, default=1, choices=[1, 2, 3, 4], help='Level of labels to use for segmentation')
     parser.add_argument('--batch_size', type=int, default=10, help='Batch size for training')
     parser.add_argument('--learning_rate', type=float, default=1e-4, help='Learning rate for optimizer')
     parser.add_argument('--num_epochs', type=int, default=5, help='Number of epochs to train')
@@ -66,8 +74,8 @@ if __name__ == "__main__":
     patience = args.patience
     device = args.device
     model_output_dir = args.model_output_dir
-
-    num_classes = NUM_CLASSES
+    label_map = LABEL_MAP_DICT[args.level]
+    num_classes = len(set(label_map.values()))
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
     data_transforms = transforms.Compose([
@@ -75,20 +83,22 @@ if __name__ == "__main__":
         transforms.ToTensor(),
     ])
 
-    train_dataset = SegmentationDatasetLite(data_dir=data_dir, transform=data_transforms, mode='train')
-    val_dataset = SegmentationDatasetLite(IDD_prepared_path, transform=data_transforms, mode='val')
+    train_dataset = SegmentationDataset(data_dir=data_dir, transform=data_transforms, mode='train', label_map=label_map)
+    val_dataset = SegmentationDataset(IDD_prepared_path, transform=data_transforms, mode='val', label_map=label_map)
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     model = SegNet(in_channels=3, num_classes=num_classes).to(device)
-    load_vgg16_bn_weights(model) 
-    criterion = torch.nn.CrossEntropyLoss(ignore_index=255)
+    load_vgg16_bn_weights(model)  # Load VGG16-BN weights
+    criterion = torch.nn.CrossEntropyLoss(ignore_index=label_map['out of roi'])
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
+    # Early stopping parameters
     best_val_loss = float('inf')
     patience_counter = 0
 
+    # TensorBoard setup
     tb_writer = tb.SummaryWriter(log_dir=f'runs/segnet_training_{timestamp}')
     tb_writer.add_graph(model, next(iter(train_loader))[0].to(device))
     tb_writer.add_text('Hyperparameters', f'Level: {args.level}, Batch Size: {batch_size}, Learning Rate: {learning_rate}, Epochs: {num_epochs}, Patience: {patience}')
@@ -122,6 +132,7 @@ if __name__ == "__main__":
 
         print(f"Epoch {epoch+1:3d}/{num_epochs:3d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
 
+        # Early stopping check
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             patience_counter = 0
@@ -132,9 +143,10 @@ if __name__ == "__main__":
             print(f"Early stopping triggered after {epoch+1} epochs.")
             break
 
+    # Save the model 
     if not os.path.exists(model_output_dir):
         os.makedirs(model_output_dir)
-    model_name = f'segnet_lite_l{args.level}_ep{epoch+1}_{timestamp}.pth'
+    model_name = f'segnet_l{args.level}_ep{epoch+1}_{timestamp}.pth'
     torch.save(model.state_dict(), os.path.join(model_output_dir, model_name))
     print(f"Model saved as {model_output_dir}{model_name}.")
     tb_writer.close()
