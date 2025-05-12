@@ -78,26 +78,6 @@ class SegNet(nn.Module):
         out = self.dec1(d2, i1)
         return out
 
-# def load_vgg16_bn_weights(segnet_model: SegNet):
-
-#     vgg16_bn = models.vgg16_bn(weights=models.VGG16_BN_Weights.IMAGENET1K_V1)
-#     pretrained_layers = list(vgg16_bn.features)
-
-#     segnet_convs = []
-#     for module in segnet_model.modules():
-#         if isinstance(module, nn.Conv2d):
-#             segnet_convs.append(module)
-
-#     vgg_conv_idx = 0
-#     for m in pretrained_layers:
-#         if isinstance(m, nn.Conv2d):
-#             segnet_layer = segnet_convs[vgg_conv_idx]
-#             segnet_layer.weight.data.copy_(m.weight.data)
-#             segnet_layer.bias.data  .copy_(m.bias.data)
-#             vgg_conv_idx += 1
-
-#     print(f"Loaded {vgg_conv_idx} conv layers from VGG16-BN into SegNet encoder.")
-
 def load_vgg16_bn_weights(segnet_model: SegNet):
     vgg16_bn = models.vgg16_bn(weights=models.VGG16_BN_Weights.IMAGENET1K_V1)
     segnet_layers = []
