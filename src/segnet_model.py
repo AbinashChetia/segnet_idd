@@ -34,7 +34,6 @@ class DecoderBlock(nn.Module):
         self.unpool = nn.MaxUnpool2d(kernel_size=2, stride=2)
         layers = []
         for i in range(convs):
-            # Last layer in final block → 1x1 conv if classification True
             if i == convs - 1 and classification:
                 layers.append(nn.Conv2d(in_c, out_c, kernel_size=1, padding=0))
             elif i == convs - 1:
@@ -79,22 +78,44 @@ class SegNet(nn.Module):
         out = self.dec1(d2, i1)
         return out
 
+# def load_vgg16_bn_weights(segnet_model: SegNet):
+
+#     vgg16_bn = models.vgg16_bn(weights=models.VGG16_BN_Weights.IMAGENET1K_V1)
+#     pretrained_layers = list(vgg16_bn.features)
+
+#     segnet_convs = []
+#     for module in segnet_model.modules():
+#         if isinstance(module, nn.Conv2d):
+#             segnet_convs.append(module)
+
+#     vgg_conv_idx = 0
+#     for m in pretrained_layers:
+#         if isinstance(m, nn.Conv2d):
+#             segnet_layer = segnet_convs[vgg_conv_idx]
+#             segnet_layer.weight.data.copy_(m.weight.data)
+#             segnet_layer.bias.data  .copy_(m.bias.data)
+#             vgg_conv_idx += 1
+
+#     print(f"Loaded {vgg_conv_idx} conv layers from VGG16-BN into SegNet encoder.")
+
 def load_vgg16_bn_weights(segnet_model: SegNet):
-
     vgg16_bn = models.vgg16_bn(weights=models.VGG16_BN_Weights.IMAGENET1K_V1)
-    pretrained_layers = list(vgg16_bn.features)
-
-    segnet_convs = []
+    segnet_layers = []
     for module in segnet_model.modules():
-        if isinstance(module, nn.Conv2d):
-            segnet_convs.append(module)
+        if isinstance(module, (nn.Conv2d, nn.BatchNorm2d)):
+            segnet_layers.append(module)
+    
+    vgg_layers = [m for m in vgg16_bn.features if isinstance(m, (nn.Conv2d, nn.BatchNorm2d))]
+    
+    for seg_layer, vgg_layer in zip(segnet_layers, vgg_layers):
+        if isinstance(vgg_layer, nn.Conv2d):
+            seg_layer.weight.data.copy_(vgg_layer.weight.data)
+            if seg_layer.bias is not None:
+                seg_layer.bias.data.copy_(vgg_layer.bias.data)
+        elif isinstance(vgg_layer, nn.BatchNorm2d):
+            seg_layer.weight.data.copy_(vgg_layer.weight.data)
+            seg_layer.bias.data.copy_(vgg_layer.bias.data)
+            seg_layer.running_mean.copy_(vgg_layer.running_mean)
+            seg_layer.running_var.copy_(vgg_layer.running_var)
 
-    vgg_conv_idx = 0
-    for m in pretrained_layers:
-        if isinstance(m, nn.Conv2d):
-            segnet_layer = segnet_convs[vgg_conv_idx]
-            segnet_layer.weight.data.copy_(m.weight.data)
-            segnet_layer.bias.data  .copy_(m.bias.data)
-            vgg_conv_idx += 1
-
-    print(f"Loaded {vgg_conv_idx} conv layers from VGG16‑BN into SegNet encoder.")
+    print(f"Loaded {len(segnet_layers)} layers from VGG16-BN into SegNet encoder.")
