@@ -22,7 +22,6 @@ def get_args():
 
     return args
 
-
 def add_to_confusion_matrix(gt, pred, mat):
 #    print(pred.shape)
 #    print(pred.size[0],pred.size[1])
@@ -64,7 +63,6 @@ def higher_level_mat(mat, mapping):
 
     return h_mat
 
-
 def generalized_eval_ious(mat):
     n = mat.shape[0]
     ious = np.zeros(n)
@@ -81,7 +79,6 @@ def generalized_eval_ious(mat):
         ious[l] =  float(tp) / denom
     return ious
 
-
 def print_scores(ious, names, heading):
     print('---------------------------------------------')
     print(heading)
@@ -91,11 +88,6 @@ def print_scores(ious, names, heading):
     print('---------------------------------------------')
     print(f'mIoU\t\t:{ious.mean()}')
     print('---------------------------------------------')
-
-
-    
-
-
 
 def ious_at_all_levels(mat):
     global res
@@ -152,10 +144,6 @@ def ious_at_all_levels(mat):
     print_scores(l2_ious, l2_names, "Level 2 Scores")
     print_scores(l3_ious, l3_names, "Level 3 Scores")
 
-    
-
-
-
 def eval_ious(mat):
     ious = np.zeros(27)
     for l in range(26):
@@ -183,8 +171,6 @@ def process_pred_gt_pair(pair):
     if res == 240:
         W,H = 426, 240
     
-    
-
     pred, gt = pair
     # tqdm.tqdm.write(pred, gt)
     confusion_matrix = np.zeros(shape=(26+1, 26+1),dtype=np.ulonglong)
@@ -211,10 +197,6 @@ def process_pred_gt_pair(pair):
     # plt.show()
     # plt.matshow(pred)
     # plt.show()
-
-
-    
-    
 
     # print(pred.size,gt.size)
     
@@ -269,9 +251,7 @@ def main(args):
     # for i in range(26):
     #     print(f'{class_names[i]}:\t\t\t\t {ious[i]*100}')
 
-    # print(f'mIoU:\t\t\t\t{ious.mean()*100}')
-
-        
+    # print(f'mIoU:\t\t\t\t{ious.mean()*100}')        
         
 if __name__ == '__main__':
     args = get_args()
