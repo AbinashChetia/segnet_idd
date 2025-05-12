@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
     tb_writer = tb.SummaryWriter(log_dir=f'runs/segnet_training_{timestamp}')
     tb_writer.add_graph(model, next(iter(train_loader))[0].to(device))
-    tb_writer.add_text('Hyperparameters', f'Level: {args.level}, Batch Size: {batch_size}, Learning Rate: {learning_rate}, Epochs: {num_epochs}, Patience: {patience}')
+    tb_writer.add_text('Hyperparameters', f'Batch Size: {batch_size}, Learning Rate: {learning_rate}, Epochs: {num_epochs}, Patience: {patience}')
     tb_writer.add_text('Model Summary', str(model))
     tb_writer.add_text('Dataset Summary', f'Train Size: {len(train_dataset)}, Val Size: {len(val_dataset)}')
     
@@ -134,7 +134,7 @@ if __name__ == "__main__":
 
     if not os.path.exists(model_output_dir):
         os.makedirs(model_output_dir)
-    model_name = f'segnet_lite_l{args.level}_ep{epoch+1}_{timestamp}.pth'
+    model_name = f'segnet_lite_ep{epoch+1}_{timestamp}.pth'
     torch.save(model.state_dict(), os.path.join(model_output_dir, model_name))
     print(f"Model saved as {model_output_dir}{model_name}.")
     tb_writer.close()
