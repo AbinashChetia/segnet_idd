@@ -7,8 +7,6 @@ import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix
 import argparse
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 IDD_prepared_path = '../data/idd_segmentation_prepared'
 

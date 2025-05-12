@@ -6,8 +6,6 @@ import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix
 import argparse
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 IDD_prepared_path = '../data/idd20k_lite_prepared'
 NUM_CLASSES = 7
@@ -46,7 +44,7 @@ def evaluate_model(model, dataloader, device):
 
                 pred_np = pred.cpu().numpy().flatten()
                 gt_np = gt.cpu().numpy().flatten()
-                
+
                 conf_matrix += confusion_matrix(gt_np, pred_np, labels=list(range(num_classes)))
 
     ious = compute_iou(conf_matrix, list(range(num_classes)))
