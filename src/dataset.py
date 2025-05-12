@@ -46,7 +46,7 @@ class SegmentationDataset(Dataset):
         if self.transform:
             image = self.transform(image)
             if label is not None:
-                label = label.resize((image.shape[2], image.shape[1]), resample=Image.NEAREST)
+                label = label.resize((image.shape[2], image.shape[1]), resample=Image.Resampling.NEAREST)
                 label = np.array(label, dtype=np.uint8)
                 label = torch.from_numpy(label).long()
 
@@ -113,7 +113,7 @@ class SegmentationDatasetLite(Dataset):
         if self.transform:
             image = self.transform(image)
             if label is not None:
-                label = label.resize((image.shape[2], image.shape[1]), resample=Image.NEAREST)
+                label = label.resize((image.shape[2], image.shape[1]), resample=Image.Resampling.NEAREST)
                 label = np.array(label, dtype=np.uint8)
                 label = torch.from_numpy(label).long()
 

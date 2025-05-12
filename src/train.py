@@ -71,7 +71,7 @@ if __name__ == "__main__":
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
     data_transforms = transforms.Compose([
-        transforms.Resize((256, 256)),
+        transforms.Resize((256, 256), interpolation=transforms.InterpolationMode.BILINEAR),
         transforms.ToTensor(),
     ])
 
